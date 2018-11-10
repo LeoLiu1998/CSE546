@@ -4,8 +4,34 @@ import numpy as np
 from scipy.io import loadmat
 
 
-class label_info:
+class LabelInfo:
     FILES = glob.glob("./data/*.mat")
+
+    """
+    info[i] i=0,1,2...8 represent a subject's info
+    each info[i] is a dictionary having key (0-359)
+    representing each trial
+
+    For each trial, a dictionary is stored
+    as
+    {"num_trial": j, (0-359)
+     "condition": class_name,
+     "cond_number": class_num,
+     "word": word,
+     "word_number": word_num,
+     "word_index": (class_num, word_num)
+     "epoch": epoch}
+     
+    
+    index2word -> dict[tuple:str] # {(class_num, word_num): word}
+    word2index -> dict[str:tuple] # {word:(class_num, word_num)}
+
+    class2index -> dict # {class_name: class_num}
+    index2class -> dict # {class_num: class_name}
+
+    num_class -> int # number of categories(0-11)
+    num_word -> int # number of words 
+    """
 
     def __init__(self):
         self.word2index = {}
@@ -14,19 +40,19 @@ class label_info:
         self.class2index = {}
         self.index2class = {}
 
-        self.num_class = 0
         self.num_word = 0
+        self.num_class = 0
         self.info = {}
 
         self.__process()
-        self.subject_first = np.array(self.__subject_first())
-        self.trial_first = np.swapaxes(self.subject_first, 0, 1)
-        self.sets_by_label = self.__by_label()
+        self.subject_first = np.array(self.__subject_first())  # np.array
+        self.trial_first = np.swapaxes(self.subject_first, 0, 1)  # np.array
+        self.sets_by_label = self.__by_label()  # list
 
     def __process(self):
 
-        for j in range(len(label_info.FILES)):
-            filename = label_info.FILES[j]
+        for j in range(len(LabelInfo.FILES)):
+            filename = LabelInfo.FILES[j]
             subject = loadmat(filename)
             # v_index = 0
             subject_infos = subject["info"][0]
@@ -38,26 +64,25 @@ class label_info:
                 word = trial[2][0]
                 word_num = trial[3][0, 0]
                 epoch = trial[4][0, 0]
+                tmp = (class_num, word_num)
+
                 new_info = {"num_trial": i,
                             "condition": class_name,
                             "cond_number": class_num,
                             "word": word,
                             "word_number": word_num,
+                            "word_index": tmp,
                             "epoch": epoch}
 
-                if word not in self.word2index:
-                    self.word2index[word] = self.num_word
-                    self.index2word[self.num_word] = word
+                if tmp not in self.index2word:
+                    self.word2index[word] = tmp
+                    self.index2word[tmp] = word
                     self.num_word += 1
 
                 if class_name not in self.class2index:
-                    self.class2index[class_name] = self.num_class
-                    self.index2class[self.num_class] = class_name
+                    self.class2index[class_name] = class_num
+                    self.index2class[class_num] = class_name
                     self.num_class += 1
-
-                # print(self.class2index)
-                new_info["class_index"] = self.class2index[class_name]
-                new_info["word_index"] = self.word2index[word]
 
                 self.info[j][i] = new_info
 
@@ -71,7 +96,7 @@ class label_info:
                     assert key in dic0
                     assert dic0[key] == value
 
-    def __subject_first(self):
+    def __subject_first(self) -> list:
         """
         return a numpy array (9, 360, 1)
         9 rows, indicating cadidates' indices
@@ -82,11 +107,11 @@ class label_info:
         for sub in range(0, 9):
             lst = []
             for trial in range(360):
-                lst.append([self.info[sub][trial]["class_index"]])
+                lst.append([self.info[sub][trial]["cond_number"]])
             result.append(lst)
         return result
 
-    def __by_label(self):
+    def __by_label(self) -> list:
         """
         return a list of numpy array.
         each element is labels for that class (0-11)
@@ -105,5 +130,5 @@ class label_info:
 
 
 if __name__ == "__main__":
-    a = label_info()
-    pickle.dump(a, open("label_info().p", "wb"))
+    a = LabelInfo()
+    pickle.dump(a, open("LabelInfo().p", "wb"))
