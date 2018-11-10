@@ -40,4 +40,11 @@ as
 """
 ```
 
+## images.p
+A pickled image dataset stored in Google drive (https://drive.google.com/drive/u/0/folders/1rF2EbrzOjRjG6e0BX563fJymsn44Ad7j)
+```Python
+Retrive: images = pickle.load(open('images.p', 'rb')) # A list contains 3240 trials, each trial is an image in numpy (51 * 61 * 23). Trials are in order.
+```
+
+
 **Note:**  ``` "cond_number": class_num ```, this value is the original value minus 2
