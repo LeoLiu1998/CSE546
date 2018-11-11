@@ -101,7 +101,7 @@ def train(args, train_loader, model, criterion, optimizer):
 
         print('[%d/%d] loss: %.3f time: %.2f' % (i, total_batches, loss.item(), time_taken))
 
-    output_list = [np.argsort(np.abs(x))[-1] for x in output_list]
+    output_list = [np.argsort(x)[-1] for x in output_list]
 
     average_epoch_loss_train = sum(epoch_loss) / len(epoch_loss)
 
@@ -219,8 +219,6 @@ def train_val(args):
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('--file_path', default="iedb.csv")
-    parser.add_argument('--data_dir', default="./data/")  # data directory
     parser.add_argument('--max_epochs', type=int, default=50)
     parser.add_argument('--num_workers', type=int, default=4)
     parser.add_argument('--batch_size', type=int, default=50)
