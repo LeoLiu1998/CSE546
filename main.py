@@ -111,7 +111,7 @@ def train(args, train_loader, model, criterion, optimizer):
 
     return average_epoch_loss_train, accuracy, report
 
-def cross_val(args):
+def train_val(args):
 
     torch.set_default_tensor_type('torch.DoubleTensor')
 
@@ -233,9 +233,7 @@ if __name__ == '__main__':
     parser.add_argument('--onGPU', default=False)
 
 
-    cross_val(parser.parse_args())
-
-    #CUDA_VISIBLE_DEVICES=1 python cross_val.py --model='LSTM_net' --savedir='./results_lstm' --save_model=True9
+    train_val(parser.parse_args())
 
 
 
