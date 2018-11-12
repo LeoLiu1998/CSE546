@@ -114,6 +114,8 @@ class DilatedParllelResidualBlockB1(nn.Module):  # with k=4
         return output
 
 
+
+
 class ResNetC1(nn.Module):
     def __init__(self,):
         super().__init__()
@@ -149,6 +151,8 @@ class ResNetC1(nn.Module):
         self.global_Avg = nn.AdaptiveAvgPool2d(1)
         self.fc1 = nn.Linear(32, 24)
         self.fc2 = nn.Linear(24, 12)
+        self.logSoftmax = nn.LogSoftmax()
+
 
     def forward(self, input1): #(1, 5, 174, 18)
         # input1 = self.cmlrn(input)
@@ -188,11 +192,74 @@ class ResNetC1(nn.Module):
         flatten = glbAvg.view(glbAvg.size(0), -1)
         fc1 = self.fc1(flatten)
         output = self.fc2(fc1)
+        prob = self.logSoftmax(output, axis=1)
 
+
+        return prob
+
+
+# Introduce an extra dimension in dataloader first!!!
+class Conv3dNet(nn.Module):
+    def __init__(self, ninput, noutput, kernel_size, stride=1, num_classes=12):
+        super(Conv3dNet, self).__init__()
+        self.padding = int((kernel_size - 1) / 2)
+        self.layer1 = nn.Sequential(
+            nn.Conv3d(ninput, noutput, kernel_size, stride=stride, padding=self.padding),
+            nn.BatchNorm3d(noutput),
+            nn.ReLU(),
+            nn.MaxPool3d(kernel_size=2, stride=2)
+        )
+        self.layer2 = nn.Sequential(
+            nn.Conv3d(noutput, 2 * noutput, kernel_size, stride=stride, padding=self.padding),
+            nn.BatchNorm3d(noutput * 2),
+            nn.ReLU(),
+            nn.MaxPool3d(kernel_size=2, stride=2)
+        )
+        self.fc = nn.Linear(32 * 12 * 14 * 5, num_classes)
+
+
+    def forward(self, input):
+        out = self.layer1(input)
+        out = self.layer2(out)
+        out = self.fc(out.view(len(out), -1))
+        return out
+
+
+class Conv2dNet(nn.Module):
+    def __init__(self, ninput, noutput, kernel_size, stride=1, num_classes=12):
+        super(Conv2dNet, self).__init__()
+        self.padding = int((kernel_size - 1) / 2)
+        self.layer1 = nn.Sequential(
+            nn.Conv2d(ninput, noutput, kernel_size, stride=stride, padding=self.padding),
+            nn.BatchNorm2d(noutput),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2)
+        )
+        self.layer2 = nn.Sequential(
+            nn.Conv2d(noutput, 32, kernel_size, stride=stride, padding=self.padding),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2)
+        )
+        self.fc = nn.Linear(32 * 14 * 5, num_classes)
+
+
+    def forward(self, input):
+        out = self.layer1(input)
+        out = self.layer2(out)
+        out = self.fc(out.view(len(out), -1))
+        return out
+
+class FC(nn.Module):
+    def __init__(self, nIn, nOut):
+        super().__init__()
+        self.fc = nn.Linear(nIn, nOut)
+
+    def forward(self, input):
+        output = self.fc(input)
         return output
 
-
-net = ResNetC1()
+net = Conv2dNet(51, 64, kernel_size=2)
 a = torch.Tensor(1, 51, 61, 23)
 out1 =net(a)
 print(out1.size())
