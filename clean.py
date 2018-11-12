@@ -5,7 +5,7 @@ from scipy.io import loadmat
 
 
 class LabelInfo:
-    FILES = glob.glob("./data/*.mat")
+    FILES = ['./data/data-science-P' + str(i) + '.mat' for i in range(1, 10)]
 
     """
     info[i] i=0,1,2...8 represent a subject's info
