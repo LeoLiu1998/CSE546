@@ -4,9 +4,18 @@ from clean import LabelInfo
 
 
 images, labels = loadData()
+
 for i in range(len(images)):
     images[i] = images[i].flatten()
 
-clf = LogisticRegression(random_state=0, solver='lbfgs', multi_class='multinomial').fit(images, labels)
+X_train = images[:len(images) // 10 * 9]
+X_valid = images[len(images) // 10 * 9:]
+y_train = images[:len(images) // 10 * 9]
+y_valid = images[len(images) // 10 * 9:]
 
-print(clf.score(images, labels))
+
+
+clf1 = LogisticRegression(random_state=0, solver='lbfgs', multi_class='multinomial').fit(X_train, y_train)
+
+print('logistic regression score is ', clf1.score(X_valid, y_valid))
+
