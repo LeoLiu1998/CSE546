@@ -10,8 +10,8 @@ for i in range(len(images)):
 
 X_train = images[:len(images) // 10 * 9]
 X_valid = images[len(images) // 10 * 9:]
-y_train = images[:len(images) // 10 * 9]
-y_valid = images[len(images) // 10 * 9:]
+y_train = labels[:len(images) // 10 * 9]
+y_valid = labels[len(images) // 10 * 9:]
 
 
 
