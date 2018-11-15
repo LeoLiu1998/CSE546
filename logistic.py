@@ -1,4 +1,5 @@
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn import svm
 from load import loadData
 from clean import LabelInfo
@@ -21,11 +22,15 @@ y_valid = labels[len(images) // 10 * 9:]
 
 
 
-clf1 = LogisticRegression(random_state=0, solver='lbfgs', multi_class='multinomial').fit(X_train, y_train)
+# clf1 = LogisticRegression(random_state=0, solver='lbfgs', multi_class='multinomial').fit(X_train, y_train)
+#
+# print('logistic regression score is ', clf1.score(X_valid, y_valid))
+#
+# clf2 = svm.SVC(kernel='linear').fit(X_train, y_train)
+#
+# print('SVM score is ', clf2.score(X_valid, y_valid))
 
-print('logistic regression score is ', clf1.score(X_valid, y_valid))
+clf3 = RandomForestClassifier().fit(X_train, y_train)
 
-clf2 = svm.SVC(kernel='linear').fit(X_train, y_train)
-
-print('SVM score is ', clf2.score(X_valid, y_valid))
+print('RandomForestClassifier score is ', clf3.score(X_valid, y_valid))  # 0.09859259259259259
 

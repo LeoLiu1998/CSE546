@@ -131,4 +131,4 @@ class LabelInfo:
 
 if __name__ == "__main__":
     a = LabelInfo()
-    pickle.dump(a, open("LabelInfo().p", "wb"))
+    pickle.dump(a, open("Label.p", "wb"))
