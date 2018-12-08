@@ -23,9 +23,7 @@ class PositionalEncoder(nn.Module):
         self.register_buffer('pe', pe)
 
     def forward(self, x):
-        # make embeddings relatively larger
         x = x * sqrt(self.d_model)
-        # add constant to embedding
         seq_len = x.size(1)
         x = x + Variable(self.pe[:, :seq_len], \
                          requires_grad=False).cuda()
@@ -48,22 +46,15 @@ class MultiHeadAttention(nn.Module):
 
     def forward(self, q, k, v, mask=None):
         batch_size = q.size(0)
-
-        # perform linear operation and split into h heads
-
         k = self.fc_k(k).view(batch_size, -1, self.h, self.d_k)
         q = self.fc_q(q).view(batch_size, -1, self.h, self.d_k)
         v = self.fc_v(v).view(batch_size, -1, self.h, self.d_k)
-
-        # transpose to get dimensions bs * h * sl * d_model
 
         k = k.transpose(1, 2)
         q = q.transpose(1, 2)
         v = v.transpose(1, 2)
 
         scores = attention(q, k, v, self.d_k, mask, self.dropout)
-
-        # concatenate heads and put through final linear layer
         concat = scores.transpose(1, 2).contiguous().view(batch_size, -1, self.d_model)
 
         output = self.out(concat)
@@ -92,7 +83,6 @@ class Norm(nn.Module):
         super().__init__()
 
         self.size = d_model
-        # create two learnable parameters to calibrate normalisation
         self.alpha = Parameter(torch.ones(self.size))
         self.bias = Parameter(torch.zeros(self.size))
         self.epsilon = epsilon
@@ -106,7 +96,6 @@ class Norm(nn.Module):
 class FeedForward(nn.Module):
     def __init__(self, d_model, d_ff=2048, dropout=0.1):
         super().__init__()
-        # We set d_ff as a default to 2048
         self.fc1 = Linear(d_model, d_ff)
         self.dropout = Dropout(dropout)
         self.fc2 = Linear(d_ff, d_model)
